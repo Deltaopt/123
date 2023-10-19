@@ -1,0 +1,531 @@
+Practical 1
+Aim: Creating a single transactions and displaying them
+Codes
+!pip install pycryptodome
+import hashlib
+import random
+import string
+import json
+import binascii
+import numpy as np
+import pandas as pd
+import pylab as pl
+import logging
+import datetime
+import collections
+import Crypto
+import Crypto.Random
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+
+
+class Client:
+  def __init__(self):
+    random_generator=Crypto.Random.new().read
+    self._private_key=RSA.generate(1024,random_generator)
+    self._public_key=self._private_key.publickey()
+    self._signer=PKCS1_v1_5.new(self._private_key)
+
+  @property
+  def identity(self):
+    return binascii.hexlify(self._public_key.exportKey(format='PEM')).decode('ASCII')
+
+Dinesh=Client()
+print(Dinesh.identity)
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Practical 2
+Aim:A transaction class to receive and transact money and test it
+Codes:
+class Bank:
+  def __init__(self):
+    self.balance=0
+    print("Chelsia_283\n")
+    print("The account is created")
+  def deposit(self):
+    amount=float(input("Enter the amount to be deposit:"))
+    self.balance=self.balance+amount
+    print("The deposit is succcessful and the balance in the account is %f" %self.balance)
+  def withdraw(self):
+    amount=float(input("Enter the amount to withdraw:"))
+    if(self.balance>=amount):
+      self.balance=self.balance-amount
+      print("The withdraw is successful and the balance is %f" %self.balance)
+    else:
+      print('Insufficient Balance')
+  def enquiry(self):
+    print("Balance in the amount is %f" %self.balance)
+acc = Bank()
+acc.deposit()
+acc.withdraw()
+acc.enquiry()
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Practical 3
+Aim:Create a Multiple Transaction and display them.
+Codes:
+!pip install pycryptodome
+import hashlib
+import random
+import string
+import json
+import binascii
+import numpy as np
+import pandas as pd
+import pylab as pl
+import logging
+import datetime
+import collections
+import Crypto
+import Crypto.Random
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto import Signature
+class Client:
+  def __init__(self):
+    random_generator=Crypto.Random.new().read
+    self._private_key=RSA.generate(1024,random_generator)
+    self._public_key=self._private_key.publickey()
+    self._signer=PKCS1_v1_5.new(self._private_key)
+
+  @property
+  def identity(self):
+    return binascii.hexlify(self._public_key.exportKey(format='PEM')).decode('ASCII')
+
+Dinesh=Client()
+print(Dinesh.identity)
+
+class Transaction:
+  def __init__(self,sender,recipient,value):
+    self.sender=sender
+    self.recipient=recipient
+    self.value=value
+    self.time=datetime.datetime.now()
+  def to_dict(self):
+    if self.sender=="Genesis":
+      identity="Genesis"
+    else:
+      identity=self.sender.identity
+    return collections.OrderedDict({
+        'sender':identity,
+        'recipient':self.recipient,
+        'value':self.value,
+        'time':self.time})
+  def sign_transaction(self):
+    private_key=self.sender._private_key
+    signer=PKCS1_v1_5.new(private_key)
+    h=SHA.new(str(self.to_dict()).encode('utf8'))
+    return binascii.hexlify(signer.sign(h)).decode('ascii')
+Dinesh=Client()
+Ramesh=Client()
+
+t=Transaction(
+    Dinesh,
+    Ramesh.identity,
+    5.0
+)
+signature=t.sign_transaction()
+print(Signature)
+print("=============Multiple Transaction=============")
+
+def display_transaction(transaction):
+  dict=transaction.to_dict()
+  print("sender:"+dict['sender'])
+  print('------')
+  print("recipient:"+dict['recipient'])
+  print('------')
+  print("value:"+str(dict['value']))
+  print('------')
+  print("time:"+str(dict['time']))
+  print('------')
+
+Dinesh=Client()
+Ramesh=Client()
+Seema=Client()
+Vijay=Client()
+
+transactions=[]
+t1=Transaction(
+    Dinesh,
+    Ramesh.identity,
+    15.0
+)
+t1.sign_transaction()
+transactions.append(t1)
+
+t2=Transaction(
+    Dinesh,
+    Seema.identity,
+    6.0
+)
+
+t2.sign_transaction()
+transactions.append(t2)
+t3=Transaction(
+    Ramesh,
+    Vijay.identity,
+    2.0
+)
+t3.sign_transaction()
+transactions.append(t3)
+t4=Transaction(
+    Seema,
+    Ramesh.identity,
+    4.0
+)
+t4.sign_transaction()
+transactions.append(t4)
+t5=Transaction(
+    Vijay,
+    Seema.identity,
+    7.0
+)
+t5.sign_transaction()
+transactions.append(t5)
+t6=Transaction(
+    Ramesh,
+    Seema.identity,
+    3.0
+)
+t6.sign_transaction()
+transactions.append(t6)
+t7=Transaction(
+    Seema,
+    Dinesh.identity,
+    8.0
+)
+t7.sign_transaction()
+transactions.append(t7)
+t8=Transaction(
+    Seema,
+    Ramesh.identity,
+    1.0
+)
+t8.sign_transaction()
+transactions.append(t8)
+t9=Transaction(
+    Vijay,
+    Dinesh.identity,
+    5.0
+)
+t9.sign_transaction()
+transactions.append(t9)
+t10=Transaction(
+    Vijay,
+    Ramesh.identity,
+    3.0
+)
+t10.sign_transaction()
+transactions.append(t10)
+
+for transaction in transactions:
+    display_transaction(transaction)
+    print('-------------')
+
+
+
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Practical 4
+Aim:Create a block chain genesis block and execute it
+Codes:
+!pip install pycryptodome
+import hashlib
+import random
+import string
+import json
+import binascii
+import numpy as np
+import pandas as pd
+import pylab as pl
+import logging
+import datetime
+import collections
+import Crypto
+import Crypto.Random
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+from Crypto import Signature
+class Client:
+  def __init__(self):
+    random_generator=Crypto.Random.new().read
+    self._private_key=RSA.generate(1024,random_generator)
+    self._public_key=self._private_key.publickey()
+    self._signer=PKCS1_v1_5.new(self._private_key)
+
+  @property
+  def identity(self):
+    return binascii.hexlify(self._public_key.exportKey(format='PEM')).decode('ASCII')
+
+Dinesh=Client()
+print(Dinesh.identity)
+
+class Transaction:
+  def __init__(self,sender,recipient,value):
+    self.sender=sender
+    self.recipient=recipient
+    self.value=value
+    self.time=datetime.datetime.now()
+  def to_dict(self):
+    if self.sender=="Genesis":
+      identity="Genesis"
+    else:
+      identity=self.sender.identity
+    return collections.OrderedDict({
+        'sender':identity,
+        'recipient':self.recipient,
+        'value':self.value,
+        'time':self.time})
+  def sign_transaction(self):
+    private_key=self.sender._private_key
+    signer=PKCS1_v1_5.new(private_key)
+    h=SHA.new(str(self.to_dict()).encode('utf8'))
+    return binascii.hexlify(signer.sign(h)).decode('ascii')
+Dinesh=Client()
+Ramesh=Client()
+
+t=Transaction(
+    Dinesh,
+    Ramesh.identity,
+    5.0
+)
+signature=t.sign_transaction()
+print(Signature)
+print("=============Multiple Transaction=============")
+
+def display_transaction(transaction):
+  dict=transaction.to_dict()
+  print("sender:"+dict['sender'])
+  print('------')
+  print("recipient:"+dict['recipient'])
+  print('------')
+  print("value:"+str(dict['value']))
+  print('------')
+  print("time:"+str(dict['time']))
+  print('------')
+class Block:
+  def __init__(self):
+    self.verified_transactions=[]
+    self.previous_block_hash=""
+    self.Nonce=""
+def dump_blockchain(self):
+    print("Number of blocks in the chain:"+str(len(self)))
+    for x in range(len(TPCoins)):
+      block_temp=TPCoins[x]
+      print("block #"+str(x))
+      for transaction in block_temp.verified_transactions:
+        display_transaction(transaction)
+        print('--------')
+      print("==========")
+Dinesh=Client()
+t0=Transaction(
+    "Genesis",
+    Dinesh.identity,
+    500.0
+)
+block0=Block()
+Nonce=None
+block0.verified_transactions.append(t0)
+digest=hash(block0)
+last_block_hash=digest
+TPCoins=[]
+TPCoins.append(block0)
+dump_blockchain(TPCoins)
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Practical 5
+Aim: Creating a mining function and testing it
+Codes:
+!pip install pycryptodome
+import hashlib
+import random
+import string
+import json
+import binascii
+import numpy as np
+import pandas as pd
+import pylab as pl
+import logging
+import datetime
+import collections
+import Crypto
+import Crypto.Random
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+def sha256(message):
+  return hashlib.sha256(message.encode('ascii')).hexdigest()
+def mine(message,difficulty=1):
+  assert difficulty>=1
+  prefix='1' * difficulty
+  for i in range(1000):
+    digest=sha256(str(hash(message))+str(i))
+    if digest.startswith(prefix):
+      print("after"+str(i)+"iterations found nonce:"+digest)
+    return digest
+mine("Hello,How are you??",2)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Practical 6
+
+Aim : Creating a smart contract on the Ethereum blockchain using Remix
+
+Code : // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 public storedData;
+
+    constructor() {
+        storedData = 0;
+    }
+
+    function set(uint256 newValue) public {
+        storedData = newValue;
+    }
+
+    function get() public view returns (uint256) {
+        return storedData;
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Practical 7
+Aim : Creating a variable on the blockchain using Solidity and deploying it as contract on the Ethereum blockchain using Remix
+Code : 
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 public myVariable;
+
+    constructor() {
+        myVariable = 42;
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Practical 8
+Aim: Creating an array on the blockchain using Solidity and deploying it as contract on the Ethereum blockchain using Remix
+Code : 
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ArrayExample {
+    uint256[] public myArray;
+
+    constructor() {
+        myArray.push(42);
+    }
+
+    function addValue(uint256 _value) public {
+        myArray.push(_value);
+    }
+
+    function getArrayLength() public view returns (uint256) {
+        return myArray.length;
+    }
+
+    function getValueAtIndex(uint256 index) public view returns (uint256) {
+        require(index < myArray.length, "Index out of range");
+        return myArray[index];
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Practical 9
+Aim: Creating a for loop on the blockchain using Solidity and deploying it as contract on the Ethereum blockchain using Remix
+Code : // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract LoopExamplevalues {
+    uint256[] public values;
+
+    constructor() {
+        values = new uint256[](0);
+    }
+
+    function initializeArray(uint256[] memory initialData) public {
+        values = initialData;
+    }
+
+    function incrementArray() public {
+        for (uint256 i = 0; i < values.length; i++) {
+            values[i] = values[i] + 1;
+        }
+    }
+
+    function getValues() public view returns (uint256[] memory) {
+        return values;
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Practical 10
+Aim: Creating Struct on the blockchain using Solidity and deploying it as contract on the Ethereum blockchain using Remix
+Code : // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract EmployeeRegistrymul {
+    struct Employee {
+        string name;
+        uint256 salary;
+    }
+
+    mapping(address => Employee) public employees;
+
+    function addEmployee(address _address, string memory _name, uint256 _salary) public {
+        require(_address != address(0), "Invalid address");
+        employees[_address] = Employee(_name, _salary);
+    }
+
+    function updateSalary(address _address, uint256 _newSalary) public {
+        require(_address != address(0), "Invalid address");
+        Employee storage employee = employees[_address];
+        employee.salary = _newSalary;
+    }
+
+    function getEmployeeSalary(address _address) public view returns (uint256) {
+        require(_address != address(0), "Invalid address");
+        return employees[_address].salary;
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Practical 11
+Aim: Create a Solidity smart contract that utilizes a mapping functionality and deploy it as a contract on the Ethereum blockchain using Remix
+Code : 
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MappingExample {
+    mapping(address => uint256) public balances;
+
+    constructor() {
+        balances[msg.sender] = 1000;
+    }
+
+    function setBalance(address _address, uint256 _balance) public {
+        balances[_address] = _balance;
+    }
+
+    function getBalance(address _address) public view returns (uint256) {
+        return balances[_address];
+    }
+}
